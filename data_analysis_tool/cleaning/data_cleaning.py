@@ -16,3 +16,6 @@ print(df.head())
 df['Date of Admission'] = pd.to_datetime(df['Date of Admission'], errors='coerce')
 
 print(df.head())
+
+df['Discharge Date'] = pd.to_datetime(df['Discharge Date'], errors='coerce')
+print(df.head())
