@@ -57,7 +57,12 @@ plt.xlabel('Medication')
 plt.ylabel('count')
 plt.show()
 
-
+#create a bar plot for the lenght of stay distribution
+sns.countplot(x='Length of Stay', data=data)
+plt.title("Length of Stay distribution")
+plt.xlabel('Length of Stay')
+plt.ylabel('count')
+plt.show()
 
 
 
