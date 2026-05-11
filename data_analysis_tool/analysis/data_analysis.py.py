@@ -14,26 +14,24 @@ data = pd.read_csv('data_analysis_tool/data/healthcare_dataset.csv')
 print("FIRST 5 ROWS")
 print(data.head())
 
-print("\nLAST 5 ROWS")
+print("LAST 5 ROWS")
 print(data.tail())
 
-print("\nDATA INFO")
+print("DATA INFO")
 print(data.info())
 
-print("\nSTATISTICAL SUMMARY")
+print("STATISTICAL SUMMARY")
 print(data.describe())
 
 # Check for null values
-print("\nNULL VALUES")
+print("NULL VALUES")
 print(data.isnull().sum())
 
 # Check duplicates
 print("\nDUPLICATES")
 print(data.duplicated().sum())
 
-# -----------------------------------
 # DATA VISUALIZATION
-# -----------------------------------
 
 # Scatterplot: Age vs Billing Amount
 plt.figure(figsize=(10, 6))
@@ -50,10 +48,7 @@ plt.xlabel('Age')
 plt.ylabel('Billing Amount')
 plt.show()
 
-# -----------------------------------
 # DATA PREPROCESSING
-# -----------------------------------
-
 # Convert categorical columns into dummy variables
 data_encoded = pd.get_dummies(data, drop_first=True)
 
@@ -69,9 +64,8 @@ X_train, X_test, y_train, y_test = train_test_split(
     random_state=22
 )
 
-# -----------------------------------
+
 # MODEL TRAINING
-# -----------------------------------
 
 model = LinearRegression()
 
@@ -81,17 +75,15 @@ model.fit(X_train, y_train)
 # Predictions
 y_pred = model.predict(X_test)
 
-# -----------------------------------
-# MODEL EVALUATION
-# -----------------------------------
 
-print("\nPREDICTED BILLING AMOUNTS")
+# Display predicted billing amounts
+print("PREDICTED BILLING AMOUNTS")
 print(y_pred)
 
 # Metrics
 mse = mean_squared_error(y_test, y_pred)
 r2 = r2_score(y_test, y_pred)
 
-print("\nMODEL PERFORMANCE")
+print("MODEL PERFORMANCE")
 print("Mean Squared Error:", mse)
 print("R2 Score:", r2)
