@@ -31,6 +31,125 @@ print(data.isnull().sum())
 print("\nDUPLICATES")
 print(data.duplicated().sum())
 
+#create a countplot for gender
+sns.countplot(x='Gender', data=data)
+plt.title("gender distribution")
+plt.xlabel('Gender')
+plt.ylabel('count')
+
+ #display the plot 
+plt.show()
+
+#count occurrences and select the top 5
+top_diagnoses = data['Medical Condition'].value_counts().head(5)
+# Create a bar plot for the top 5 medical conditions
+#using kind = bar to create a bar plot
+data["Medical Condition"].value_counts().head(5).plot(kind='bar')
+plt.title("Top 5 most common Medical Conditions")
+plt.xlabel('Medical Condition')
+plt.ylabel('number of patients')
+plt.show()
+
+#create a bar plot for the medication distribution
+sns.countplot(x='Medication', data=data)
+plt.title("Medication distribution")
+plt.xlabel('Medication')
+plt.ylabel('count')
+plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+""" 
+
+
+
+
 # DATA VISUALIZATION
 
 # Scatterplot: Age vs Billing Amount
@@ -87,3 +206,4 @@ r2 = r2_score(y_test, y_pred)
 print("MODEL PERFORMANCE")
 print("Mean Squared Error:", mse)
 print("R2 Score:", r2)
+ """
