@@ -3,9 +3,6 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from sklearn.model_selection import train_test_split
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, r2_score
 
 # Load dataset
 data = pd.read_csv('data_analysis_tool/data/healthcare_dataset.csv')
@@ -32,32 +29,48 @@ print("\nDUPLICATES")
 print(data.duplicated().sum())
 
 #create a countplot for gender
-sns.countplot(x='Gender', data=data)
-plt.title("gender distribution")
+
+data['Gender'] = data['Gender'].where(data['Gender'].isin(['Male', 'Female']), 'Unknown')
+df = pd.DataFrame(data)
+
+# Plot
+# Create the countplot
+ax = sns.countplot(data=data, x='Gender')
+
+# Add title and labels
+plt.title("Gender Distribution")
 plt.xlabel('Gender')
-plt.ylabel('count')
+plt.ylabel('Count')
 
- #display the plot 
+# Add gridlines to show intercepts clearly
+ax.yaxis.grid(True, linestyle='--', alpha=0.5)
+
+# Add value labels on top of each bar
+for p in ax.patches:
+    height = p.get_height()
+    ax.annotate(
+        f'{height:,}',                      # formatted number
+        (p.get_x() + p.get_width() / 2, height),
+        ha='center', va='bottom',
+        fontsize=12, fontweight='bold')
 plt.show()
 
-#count occurrences and select the top 5
-top_diagnoses = data['Medical Condition'].value_counts().head(5)
+
+
 # Create a bar plot for the top 5 medical conditions
-#using kind = bar to create a bar plot
 data["Medical Condition"].value_counts().head(5).plot(kind='bar')
-plt.title("Top 5 most common Medical Conditions")
-plt.xlabel('Medical Condition')
-plt.ylabel('number of patients')
+plt.title("Top 5 Medical Conditions")
+plt.tight_layout()
+plt.xlabel('Medical Condition') 
+plt.ylabel('Count')
 plt.show()
 
-#create a bar plot for the medication distribution
-sns.countplot(x='Medication', data=data)
-plt.title("Medication distribution")
-plt.xlabel('Medication')
-plt.ylabel('count')
-plt.show()
 
 #create a bar plot for the lenght of stay distribution
+data['Date of Admission'] = pd.to_datetime(data['Date of Admission']) 
+data['Discharge Date'] = pd.to_datetime(data['Discharge Date'])
+data['Length of Stay'] = (data['Discharge Date'] - data['Date of Admission']).dt.days
+
 sns.countplot(x='Length of Stay', data=data)
 plt.title("Length of Stay distribution")
 plt.xlabel('Length of Stay')
@@ -65,9 +78,104 @@ plt.ylabel('count')
 plt.show()
 
 
+#medical history distribution by blood type
+data['Medical Condition'] = data['Medical Condition'].fillna('Unknown')
+data['Blood Type'] = data['Blood Type'].fillna('Unknown')
+
+sns.countplot(x='Medical Condition', hue='Blood Type', data=data)
+plt.title("Medical history distribution by blood type")
+plt.xlabel('Medical Condition')
+plt.ylabel('count')
+plt.show()
+
+class data_analysis:
+    def __init__(self, df):
+        self.df = df
+
+    def analyze_data(self):
+        # Display dataset information
+        print("FIRST 5 ROWS")
+        print(self.df.head())
+
+        print("LAST 5 ROWS")
+        print(self.df.tail())
+
+        print("DATA INFO")
+        print(self.df.info())
+
+        print("STATISTICAL SUMMARY")
+        print(self.df.describe())
+
+        # Check for null values
+        print("NULL VALUES")
+        print(self.df.isnull().sum())
+
+        # Check duplicates
+        print("\nDUPLICATES")
+        print(self.df.duplicated().sum())
+
+        def visualize_data(self):
+            # Create a countplot for gender
+            self.gender()
+            def gender(self):
+                self.df['Gender'] = self.df['Gender'].where(self.df['Gender'].isin(['Male', 'Female']), 'Unknown')
+                df = pd.DataFrame(self.df)
+                # Plot
+                # Create the countplot
+                ax = sns.countplot(data=df, x='Gender')
+
+                plt.title("Gender Distribution")
+                plt.xlabel('Gender')
+                plt.ylabel('Count')
+
+                # Add gridlines to show intercepts clearly
+                ax.yaxis.grid(True, linestyle='--', alpha=0.5)
+
+                # Add value labels on top of each bar
+                for p in ax.patches:
+                    height = p.get_height()
+                ax.annotate(
+                    f'{height:,}',                      # formatted number
+                    (p.get_x() + p.get_width() / 2, height),
+                    ha='center', va='bottom',
+                    fontsize=12, fontweight='bold')
+                plt.show()
+
+            def medical_condition(self):
+                # Create a bar plot for the top 5 medical conditions
+                self.df["Medical Condition"].value_counts().head(5).plot(kind='bar')
+                plt.title("Top 5 Medical Conditions")
+                plt.tight_layout()
+                plt.xlabel('Medical Condition') 
+                plt.ylabel('Count')
+                plt.show()
+
+            def length_of_stay(self):
+                # Create a bar plot for the length of stay distribution
+                self.df['Date of Admission'] = pd.to_datetime(self.df['Date of Admission']) 
+                self.df['Discharge Date'] = pd.to_datetime(self.df['Discharge Date'])
+                self.df['Length of Stay'] = (self.df['Discharge Date'] - self.df['Date of Admission']).dt.days
+
+                sns.countplot(x='Length of Stay', data=self.df)
+                plt.title("Length of Stay distribution")
+                plt.xlabel('Length of Stay')
+                plt.ylabel('count')
+                plt.show()
+
+            def medical_history_blood_type(self):
+                # Create a countplot for medical history distribution by blood type
+                self.df['Medical Condition'] = self.df['Medical Condition'].fillna('Unknown')
+                self.df['Blood Type'] = self.df['Blood Type'].fillna('Unknown')
+
+                sns.countplot(x='Medical Condition', hue='Blood Type', data=self.df)
+                plt.title("Medical history distribution by blood type")
+                plt.xlabel('Medical Condition')
+                plt.ylabel('count')
+                plt.show()
 
 
-
+        
+            
 
 
 

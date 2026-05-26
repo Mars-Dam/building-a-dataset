@@ -29,14 +29,6 @@ class data_cleaning():
         self.df['Discharge Date'] = pd.to_datetime(self.df['Discharge Date'], errors='coerce')
         return self.df
     
-"""     def save_cleaned_data(self, cleaned_df):
-        cleaned_df.to_csv("data_analysis_tool/data/cleaned_healthcare_dataset.csv", index=False)
-        print("Cleaned data saved to: data_analysis_tool/data/cleaned_healthcare_dataset.csv")
 
-cleaner = data_cleaning(df)
-cleaned_df = cleaner.clean_data()
-cleaner.save_cleaned_data(cleaned_df)
-
- """
 
 
