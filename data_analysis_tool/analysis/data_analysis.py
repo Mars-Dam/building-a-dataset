@@ -2,7 +2,10 @@
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+import sklearn
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
 
 # Load dataset
 data = pd.read_csv('data_analysis_tool/data/healthcare_dataset.csv')
@@ -32,6 +35,23 @@ print(data.duplicated().sum())
 
 data['Gender'] = data['Gender'].where(data['Gender'].isin(['Male', 'Female']), 'Unknown')
 df = pd.DataFrame(data)
+
+X = data.drop(columns=['Billing Amount'])
+y = data['Billing Amount']
+
+X_train, X_test, y_train, y_test = train_test_split(
+    X,
+    y,
+    test_size=0.2,
+    random_state=42,
+)
+
+print("Training set shape:", X_train.shape, y_train.shape)
+print("Testing set shape:", X_test.shape, y_test.shape)
+print("Features shape:", X.shape)
+print("Target shape:", y.shape)
+
+
 
 # Plot
 # Create the countplot
@@ -88,7 +108,9 @@ plt.xlabel('Medical Condition')
 plt.ylabel('count')
 plt.show()
 
-class data_analysis:
+
+
+class DataAnalysis:
     def __init__(self, df):
         self.df = df
 
@@ -114,7 +136,10 @@ class data_analysis:
         print("\nDUPLICATES")
         print(self.df.duplicated().sum())
 
-        def visualize_data(self):
+    def perform_analysis(self):
+        self.analyze_data()
+
+    def visualize_data(self):
             # Create a countplot for gender
             self.gender()
             def gender(self):
@@ -172,7 +197,6 @@ class data_analysis:
                 plt.xlabel('Medical Condition')
                 plt.ylabel('count')
                 plt.show()
-
 
         
             

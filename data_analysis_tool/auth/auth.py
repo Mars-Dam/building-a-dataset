@@ -4,9 +4,9 @@ import sys
 
 class Auth:
     def __init__(self):
-        # 1. Get the absolute path of the folder where THIS script is saved
-        # This ensures it works on Windows, Mac, or Linux without changes.
-        self.base_path = os.path.dirname(os.path.abspath(sys.argv[0]))
+        # Use the auth module's own directory so the user database lives
+        # alongside this authentication code, regardless of how the script is launched.
+        self.base_path = os.path.dirname(os.path.abspath(__file__))
         self.file = os.path.join(self.base_path, "users.txt")
         
         # 2. Create the file immediately if it doesn't exist
