@@ -9,8 +9,6 @@ def navigation_menu():
     print("3. Visualize Data")
     print("4. Export Results")
     print("5. Exit")
-
-
 def get_user_choice():
     """
     Prompts the user to select an option from the navigation menu.
