@@ -8,7 +8,7 @@ def navigation_menu():
     print("2. Analyze Data")
     print("3. Visualize Data")
     print("4. Export Results")
-    print("5. Exit")
+    print("5. Exit")         
 def get_user_choice():
     """
     Prompts the user to select an option from the navigation menu.
@@ -23,3 +23,4 @@ def get_user_choice():
                 print("Invalid choice. Please enter a number between 1 and 5.")
         except ValueError:
             print("Invalid input. Please enter a valid number.")
+            
