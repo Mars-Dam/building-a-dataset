@@ -1,11 +1,17 @@
 # Import necessary libraries
 import pandas as pd
 import seaborn as sns
+import matplotlib
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import sklearn
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, confusion_matrix
+from sklearn.compose import ColumnTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.tree import DecisionTreeClassifier
 
 # Load dataset
 data = pd.read_csv('data_analysis_tool/data/healthcare_dataset.csv')
@@ -32,8 +38,6 @@ print("\nDUPLICATES")
 print(data.duplicated().sum())
 
 #create a countplot for gender
-
-data['Gender'] = data['Gender'].where(data['Gender'].isin(['Male', 'Female']), 'Unknown')
 df = pd.DataFrame(data)
 
 X = data.drop(columns=['Billing Amount'])
@@ -51,9 +55,36 @@ print("Testing set shape:", X_test.shape, y_test.shape)
 print("Features shape:", X.shape)
 print("Target shape:", y.shape)
 
+
+data['Gender'] = data['Gender'].fillna('Unknown')
+data['Gender'] = data['Gender'].where(data['Gender'].isin(['Male', 'Female']), 'Unknown')
+
+median_amount = data['Billing Amount'].median()
+data['Billing Category'] = (data['Billing Amount'] >= median_amount).map({True: 'High', False: 'Low'})
+data['Gender-Based Prediction'] = data['Gender'].map({'Male': 'High', 'Female': 'Low', 'Unknown': 'Low'})
+
+cm = confusion_matrix(
+    data['Billing Category'],
+    data['Gender-Based Prediction'],
+    labels=['Low', 'High'],
+)
+
+plt.figure(figsize=(6, 4))
+sns.heatmap(
+    cm,
+    annot=True,
+    fmt='d',
+    cmap='Blues',
+    xticklabels=['Predicted Low', 'Predicted High'],
+    yticklabels=['Actual Low', 'Actual High'],
+)
+
+
+
+
 print("\nTRAIN/TEST SPLITS FOR CLASSIFICATION TARGETS")
 for target_col in ['Medical Condition', 'Medication']:
-    feature_data = data.drop(columns=['Billing Amount', target_col])
+    feature_data = data.drop(columns=['Billing Amount', target_col, 'Name'])
     target_data = data[target_col]
 
     X_train_target, X_test_target, y_train_target, y_test_target = train_test_split(
@@ -71,11 +102,52 @@ for target_col in ['Medical Condition', 'Medication']:
     print("y_test shape:", y_test_target.shape)
     print("Example y_train values:", y_train_target.head().tolist())
 
+    categorical_features = feature_data.select_dtypes(include=['object']).columns
+    numeric_features = feature_data.select_dtypes(exclude=['object']).columns
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features),
+            ('num', 'passthrough', numeric_features),
+        ]
+    )
+
+    model = Pipeline([
+        ('preprocessor', preprocessor),
+        ('classifier', DecisionTreeClassifier(random_state=42)),
+    ])
+
+    model.fit(X_train_target, y_train_target)
+    y_pred_target = model.predict(X_test_target)
+
+    labels = sorted(set(y_test_target.astype(str)).union(set(y_pred_target.astype(str))))
+    cm = confusion_matrix(y_test_target, y_pred_target, labels=labels)
+
+    plt.figure(figsize=(max(6, len(labels) * 1.4), max(4, len(labels) * 1.2)))
+    sns.heatmap(
+        cm,
+        annot=True,
+        fmt='d',
+        cmap='Blues',
+        xticklabels=labels,
+        yticklabels=labels,
+    )
+    plt.title(f'Confusion Matrix: {target_col}')
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.tight_layout()
+    plt.show()
+
+
+
+
+
+
 
 print("\nTRAIN/TEST SPLITS FOR DATE TARGETS")
 for target_col in ['Date of Admission', 'Discharge Date']:
-    feature_data = data.drop(columns=[target_col, 'Billing Amount'])
-    target_data = data[target_col]
+    feature_data = data.drop(columns=[target_col, 'Billing Amount', 'Name'])
+    target_data = pd.to_datetime(data[target_col], errors='coerce').dt.to_period('M').astype(str)
 
     X_train_date, X_test_date, y_train_date, y_test_date = train_test_split(
         feature_data,
@@ -90,6 +162,43 @@ for target_col in ['Date of Admission', 'Discharge Date']:
     print("y_train shape:", y_train_date.shape)
     print("y_test shape:", y_test_date.shape)
     print("Example y_train values:", y_train_date.head().tolist())
+
+    categorical_features = feature_data.select_dtypes(include=['object', 'string']).columns
+    numeric_features = feature_data.select_dtypes(exclude=['object', 'string']).columns
+
+    preprocessor = ColumnTransformer(
+        transformers=[
+            ('cat', OneHotEncoder(handle_unknown='ignore'), categorical_features),
+            ('num', 'passthrough', numeric_features),
+        ]
+    )
+
+    model = Pipeline([
+        ('preprocessor', preprocessor),
+        ('classifier', DecisionTreeClassifier(random_state=42)),
+    ])
+
+    model.fit(X_train_date, y_train_date)
+    y_pred_date = model.predict(X_test_date)
+
+    labels = sorted(set(y_test_date.astype(str)).union(set(y_pred_date.astype(str))))
+    cm = confusion_matrix(y_test_date, y_pred_date, labels=labels)
+
+    plt.figure(figsize=(max(6, len(labels) * 1.4), max(4, len(labels) * 1.2)))
+    sns.heatmap(
+        cm,
+        annot=True,
+        fmt='d',
+        cmap='Blues',
+        xticklabels=labels,
+        yticklabels=labels,
+    )
+    plt.title(f'Confusion Matrix: {target_col} (Month-Year)')
+    plt.xlabel('Predicted')
+    plt.ylabel('Actual')
+    plt.tight_layout()
+    plt.show()
+    plt.close()
 
 
 # Plot
@@ -116,13 +225,41 @@ plt.show()
 
 
 
-# Create a bar plot for the top 5 medical conditions
-data["Medical Condition"].value_counts().head(5).plot(kind='bar')
-plt.title("Top 5 Medical Conditions")
-plt.tight_layout()
+# 1. Get the top 5 counts
+top_5 = data["Medical Condition"].value_counts().head(5)
+
+# 2. Create the bar plot
+ax = top_5.plot(kind='bar', color='skyblue', edgecolor='black')
+
+# 3. Add the actual count labels on top of each bar
+for container in ax.containers:
+    ax.bar_label(container, fmt='%d', label_type='edge', padding=3)
+
+# 4. Force the y-axis to display full integers (no scientific notation)
+ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, loc: "{:,}".format(int(x))))
+
+# 5. Set the y-axis limits (start at 6000)
+plt.ylim(bottom=9000)
+# Alternatively, if you want to set an explicit range like 6000 to 12000:
+# plt.ylim(9000, 12000)
+
+# 6. Add labels and title
+plt.title("Top 5 Medical Conditions with Counts")
 plt.xlabel('Medical Condition') 
 plt.ylabel('Count')
+plt.xticks(rotation=45, ha='right')
+
+# 7. Adjust layout and show
+plt.tight_layout()
 plt.show()
+
+
+
+
+
+
+
+print(data["Medical Condition"].value_counts())
 
 
 #create a bar plot for the lenght of stay distribution
