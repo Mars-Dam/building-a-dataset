@@ -51,6 +51,45 @@ print("Testing set shape:", X_test.shape, y_test.shape)
 print("Features shape:", X.shape)
 print("Target shape:", y.shape)
 
+print("\nTRAIN/TEST SPLITS FOR CLASSIFICATION TARGETS")
+for target_col in ['Medical Condition', 'Medication']:
+    feature_data = data.drop(columns=['Billing Amount', target_col])
+    target_data = data[target_col]
+
+    X_train_target, X_test_target, y_train_target, y_test_target = train_test_split(
+        feature_data,
+        target_data,
+        test_size=0.2,
+        random_state=42,
+        stratify=target_data,
+    )
+
+    print(f"\nTarget: {target_col}")
+    print("X_train shape:", X_train_target.shape)
+    print("X_test shape:", X_test_target.shape)
+    print("y_train shape:", y_train_target.shape)
+    print("y_test shape:", y_test_target.shape)
+    print("Example y_train values:", y_train_target.head().tolist())
+
+
+print("\nTRAIN/TEST SPLITS FOR DATE TARGETS")
+for target_col in ['Date of Admission', 'Discharge Date']:
+    feature_data = data.drop(columns=[target_col, 'Billing Amount'])
+    target_data = data[target_col]
+
+    X_train_date, X_test_date, y_train_date, y_test_date = train_test_split(
+        feature_data,
+        target_data,
+        test_size=0.2,
+        random_state=42,
+    )
+
+    print(f"\nTarget: {target_col}")
+    print("X_train shape:", X_train_date.shape)
+    print("X_test shape:", X_test_date.shape)
+    print("y_train shape:", y_train_date.shape)
+    print("y_test shape:", y_test_date.shape)
+    print("Example y_train values:", y_train_date.head().tolist())
 
 
 # Plot
